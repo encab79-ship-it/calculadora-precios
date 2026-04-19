@@ -1,13 +1,13 @@
 const CACHE_NAME = 'calculadora-precios-v2';
 const urlsToCache = [
-  '/index.html',
-  '/productos.html',
-  '/clientes.html',
-  '/styles.css',
-  '/app.js',
-  '/manifest.json',
-  '/icon-192.png',
-  '/icon-512.png'
+  './index.html',
+  './productos.html',
+  './clientes.html',
+  './styles.css',
+  './app.js',
+  './manifest.json',
+  './icon-192.png',
+  './icon-512.png'
 ];
 
 // Instalación del Service Worker
