@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generar Iconos PNG</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #764ba2;
+        }
+        .preview {
+            display: inline-block;
+            margin: 20px;
+            text-align: center;
+        }
+        canvas {
+            border: 1px solid #ddd;
+            margin: 10px;
+        }
+        .success {
+            background: #4caf50;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Generador de Iconos PNG</h1>
+        <p>Presiona el botón para generar y descargar automáticamente todos los iconos necesarios:</p>
+
+        <button onclick="generarYDescargarTodo()">⬇️ Generar y Descargar Todos los Iconos</button>
+
+        <div id="success" class="success">
+            ✅ ¡Iconos generados y descargados correctamente!<br>
+            Revisa tu carpeta de Descargas.
+        </div>
+
+        <hr style="margin: 30px 0;">
+
+        <h3>Vista Previa:</h3>
+        <div class="preview">
+            <div>192x192</div>
+            <canvas id="icon192" width="192" height="192"></canvas>
+        </div>
+        <div class="preview">
+            <div>512x512</div>
+            <canvas id="icon512" width="512" height="512"></canvas>
+        </div>
+    </div>
+
+    <script>
+        function crearIcono(canvasId, size) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+
+            // Fondo con gradiente
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#667eea');
+            gradient.addColorStop(1, '#764ba2');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, size, size);
+
+            // Bordes redondeados (simulado con recorte)
+            ctx.globalCompositeOperation = 'destination-in';
+            ctx.beginPath();
+            ctx.roundRect(0, 0, size, size, size * 0.125);
+            ctx.fill();
+            ctx.globalCompositeOperation = 'source-over';
+
+            // Símbolo de calculadora - Pantalla
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            const pantallaWidth = size * 0.47;
+            const pantallaHeight = size * 0.12;
+            const pantallaX = (size - pantallaWidth) / 2;
+            const pantallaY = size * 0.2;
+            ctx.roundRect(pantallaX, pantallaY, pantallaWidth, pantallaHeight, size * 0.015);
+            ctx.fill();
+
+            // Símbolo de dinero
+            ctx.fillStyle = 'white';
+            ctx.font = `bold ${size * 0.27}px Arial, sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('$', size / 2, size * 0.52);
+
+            // Botones de calculadora
+            const botonRadius = size * 0.048;
+            const botonY1 = size * 0.67;
+            const botonY2 = size * 0.77;
+
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+
+            // Fila 1
+            ctx.beginPath();
+            ctx.arc(size * 0.32, botonY1, botonRadius, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.arc(size * 0.5, botonY1, botonRadius, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.arc(size * 0.68, botonY1, botonRadius, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Fila 2
+            ctx.beginPath();
+            ctx.arc(size * 0.32, botonY2, botonRadius, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.arc(size * 0.5, botonY2, botonRadius, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.arc(size * 0.68, botonY2, botonRadius, 0, Math.PI * 2);
+            ctx.fill();
+
+            return canvas;
+        }
+
+        // Polyfill para roundRect si no existe
+        if (!CanvasRenderingContext2D.prototype.roundRect) {
+            CanvasRenderingContext2D.prototype.roundRect = function(x, y, width, height, radius) {
+                this.beginPath();
+                this.moveTo(x + radius, y);
+                this.lineTo(x + width - radius, y);
+                this.quadraticCurveTo(x + width, y, x + width, y + radius);
+                this.lineTo(x + width, y + height - radius);
+                this.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+                this.lineTo(x + radius, y + height);
+                this.quadraticCurveTo(x, y + height, x, y + height - radius);
+                this.lineTo(x, y + radius);
+                this.quadraticCurveTo(x, y, x + radius, y);
+                this.closePath();
+            };
+        }
+
+        function descargarIcono(canvas, nombre) {
+            return new Promise((resolve) => {
+                canvas.toBlob((blob) => {
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.download = nombre;
+                    link.href = url;
+                    link.click();
+                    URL.revokeObjectURL(url);
+                    setTimeout(resolve, 500); // Esperar entre descargas
+                });
+            });
+        }
+
+        async function generarYDescargarTodo() {
+            // Generar iconos
+            const canvas192 = crearIcono('icon192', 192);
+            const canvas512 = crearIcono('icon512', 512);
+
+            // Descargar ambos
+            await descargarIcono(canvas192, 'icon-192.png');
+            await descargarIcono(canvas512, 'icon-512.png');
+
+            // Mostrar mensaje de éxito
+            document.getElementById('success').style.display = 'block';
+
+            setTimeout(() => {
+                document.getElementById('success').style.display = 'none';
+            }, 5000);
+        }
+
+        // Generar vista previa al cargar
+        window.addEventListener('load', () => {
+            crearIcono('icon192', 192);
+            crearIcono('icon512', 512);
+        });
+    </script>
+</body>
+</html>

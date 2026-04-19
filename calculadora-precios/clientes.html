@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#2196F3">
+    <title>Clientes - Calculadora de Precios</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>👥 Gestión de Clientes</h1>
+            <nav>
+                <a href="index.html">Calculadora</a>
+                <a href="productos.html">Productos</a>
+                <a href="clientes.html" class="active">Clientes</a>
+            </nav>
+        </header>
+
+        <main>
+            <div class="card">
+                <h2>Agregar Nuevo Cliente</h2>
+
+                <div class="form-group">
+                    <label for="nombre">Nombre del Cliente:</label>
+                    <input type="text" id="nombre" class="input" placeholder="Ejemplo: Juan Pérez, Empresa XYZ...">
+                </div>
+
+                <div class="form-group">
+                    <label for="descuento">Descuento (%):</label>
+                    <input type="number" id="descuento" class="input" placeholder="Ejemplo: 10" min="0" max="100" step="0.1">
+                    <small>Ingresa 0 si no tiene descuento</small>
+                </div>
+
+                <button onclick="agregarCliente()" class="btn btn-primary">Agregar Cliente</button>
+                <div id="mensaje"></div>
+            </div>
+
+            <div class="card">
+                <h2>Clientes Registrados</h2>
+                <div id="listaClientes"></div>
+            </div>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        window.addEventListener('load', mostrarClientes);
+
+        function agregarCliente() {
+            const nombre = document.getElementById('nombre').value.trim();
+            const descuento = document.getElementById('descuento').value;
+            const mensajeDiv = document.getElementById('mensaje');
+
+            // Validaciones
+            if (!nombre) {
+                mensajeDiv.innerHTML = '<div class="error">⚠️ Ingresa el nombre del cliente</div>';
+                return;
+            }
+            if (descuento === '' || parseFloat(descuento) < 0 || parseFloat(descuento) > 100) {
+                mensajeDiv.innerHTML = '<div class="error">⚠️ Ingresa un descuento válido (0-100)</div>';
+                return;
+            }
+
+            // Guardar cliente
+            const clientes = obtenerClientes();
+            clientes.push({
+                nombre: nombre,
+                descuento: descuento
+            });
+            guardarClientes(clientes);
+
+            // Limpiar formulario
+            document.getElementById('nombre').value = '';
+            document.getElementById('descuento').value = '';
+
+            mensajeDiv.innerHTML = '<div class="success">✅ Cliente agregado exitosamente</div>';
+            setTimeout(() => mensajeDiv.innerHTML = '', 3000);
+
+            mostrarClientes();
+        }
+
+        function mostrarClientes() {
+            const clientes = obtenerClientes();
+            const lista = document.getElementById('listaClientes');
+
+            if (clientes.length === 0) {
+                lista.innerHTML = '<p class="empty">No hay clientes registrados. Agrega el primero arriba.</p>';
+                return;
+            }
+
+            let html = '<div class="tabla">';
+            clientes.forEach((cli, index) => {
+                html += `
+                    <div class="tabla-item">
+                        <div class="tabla-info">
+                            <strong>${cli.nombre}</strong><br>
+                            <span class="descuento">Descuento: ${parseFloat(cli.descuento).toFixed(1)}%</span>
+                        </div>
+                        <button onclick="eliminarCliente(${index})" class="btn btn-danger btn-small">Eliminar</button>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            lista.innerHTML = html;
+        }
+
+        function eliminarCliente(index) {
+            if (confirm('¿Estás seguro de eliminar este cliente?')) {
+                const clientes = obtenerClientes();
+                clientes.splice(index, 1);
+                guardarClientes(clientes);
+                mostrarClientes();
+            }
+        }
+    </script>
+</body>
+</html>

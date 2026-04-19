@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#2196F3">
+    <title>Calculadora de Precios</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>💰 Calculadora de Precios</h1>
+            <nav>
+                <a href="index.html" class="active">Calculadora</a>
+                <a href="productos.html">Productos</a>
+                <a href="clientes.html">Clientes</a>
+            </nav>
+        </header>
+
+        <main>
+            <div class="card">
+                <h2>Calcular Precio</h2>
+
+                <div class="form-group">
+                    <label for="producto">Producto (Color/Densidad):</label>
+                    <select id="producto" class="input">
+                        <option value="">Seleccionar producto...</option>
+                    </select>
+                    <div id="productoInfo" class="info-box"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="cliente">Cliente:</label>
+                    <select id="cliente" class="input">
+                        <option value="">Seleccionar cliente...</option>
+                    </select>
+                    <div id="clienteInfo" class="info-box"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="ancho">Ancho (centímetros):</label>
+                    <input type="number" id="ancho" class="input" placeholder="Ejemplo: 100" min="0" step="0.01">
+                </div>
+
+                <button onclick="calcularPrecio()" class="btn btn-primary">Calcular Precio</button>
+
+                <div id="resultado" class="resultado"></div>
+            </div>
+
+            <div class="card instrucciones">
+                <h3>📋 Instrucciones</h3>
+                <ol>
+                    <li>Primero configura tus <a href="productos.html">productos</a> (color, densidad, costo/cm)</li>
+                    <li>Luego agrega tus <a href="clientes.html">clientes</a> con sus descuentos</li>
+                    <li>Selecciona producto y cliente, ingresa el ancho y calcula</li>
+                </ol>
+            </div>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        // Cargar listas al iniciar
+        window.addEventListener('load', () => {
+            cargarProductosSelect();
+            cargarClientesSelect();
+            registrarServiceWorker();
+        });
+
+        function cargarProductosSelect() {
+            const productos = obtenerProductos();
+            const select = document.getElementById('producto');
+            select.innerHTML = '<option value="">Seleccionar producto...</option>';
+
+            productos.forEach((prod, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = `${prod.color} - ${prod.densidad}`;
+                select.appendChild(option);
+            });
+        }
+
+        function cargarClientesSelect() {
+            const clientes = obtenerClientes();
+            const select = document.getElementById('cliente');
+            select.innerHTML = '<option value="">Seleccionar cliente...</option>';
+
+            clientes.forEach((cli, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = cli.nombre;
+                select.appendChild(option);
+            });
+        }
+
+        // Mostrar info del producto seleccionado
+        document.getElementById('producto').addEventListener('change', function() {
+            const index = this.value;
+            const infoDiv = document.getElementById('productoInfo');
+
+            if (index === '') {
+                infoDiv.innerHTML = '';
+                return;
+            }
+
+            const productos = obtenerProductos();
+            const prod = productos[index];
+            infoDiv.innerHTML = `
+                <strong>Color:</strong> ${prod.color}<br>
+                <strong>Densidad:</strong> ${prod.densidad}<br>
+                <strong>Costo/cm:</strong> $${parseFloat(prod.costoPorCm).toFixed(2)}
+            `;
+        });
+
+        // Mostrar info del cliente seleccionado
+        document.getElementById('cliente').addEventListener('change', function() {
+            const index = this.value;
+            const infoDiv = document.getElementById('clienteInfo');
+
+            if (index === '') {
+                infoDiv.innerHTML = '';
+                return;
+            }
+
+            const clientes = obtenerClientes();
+            const cli = clientes[index];
+            infoDiv.innerHTML = `
+                <strong>Cliente:</strong> ${cli.nombre}<br>
+                <strong>Descuento:</strong> ${parseFloat(cli.descuento).toFixed(1)}%
+            `;
+        });
+
+        function calcularPrecio() {
+            const productoIndex = document.getElementById('producto').value;
+            const clienteIndex = document.getElementById('cliente').value;
+            const ancho = parseFloat(document.getElementById('ancho').value);
+            const resultadoDiv = document.getElementById('resultado');
+
+            // Validaciones
+            if (productoIndex === '') {
+                resultadoDiv.innerHTML = '<div class="error">⚠️ Selecciona un producto</div>';
+                return;
+            }
+            if (clienteIndex === '') {
+                resultadoDiv.innerHTML = '<div class="error">⚠️ Selecciona un cliente</div>';
+                return;
+            }
+            if (!ancho || ancho <= 0) {
+                resultadoDiv.innerHTML = '<div class="error">⚠️ Ingresa un ancho válido</div>';
+                return;
+            }
+
+            // Obtener datos
+            const productos = obtenerProductos();
+            const clientes = obtenerClientes();
+            const producto = productos[productoIndex];
+            const cliente = clientes[clienteIndex];
+
+            // Calcular precio
+            const costoPorCm = parseFloat(producto.costoPorCm);
+            const descuento = parseFloat(cliente.descuento) / 100;
+            const precioBase = ancho * costoPorCm;
+            const precioFinal = precioBase * (1 - descuento);
+            const montoDescuento = precioBase - precioFinal;
+
+            // Mostrar resultado
+            resultadoDiv.innerHTML = `
+                <div class="success">
+                    <h3>✅ Precio Calculado</h3>
+                    <div class="detalle">
+                        <p><strong>Producto:</strong> ${producto.color} - ${producto.densidad}</p>
+                        <p><strong>Cliente:</strong> ${cliente.nombre}</p>
+                        <p><strong>Ancho:</strong> ${ancho} cm</p>
+                        <hr>
+                        <p><strong>Precio base:</strong> $${precioBase.toFixed(2)}</p>
+                        <p><strong>Descuento (${cliente.descuento}%):</strong> -$${montoDescuento.toFixed(2)}</p>
+                        <hr>
+                        <p class="precio-final">💵 <strong>PRECIO FINAL:</strong> $${precioFinal.toFixed(2)}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function registrarServiceWorker() {
+            if ('serviceWorker' in navigator && location.protocol === 'https:') {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(() => console.log('Service Worker registrado'))
+                    .catch(err => console.log('Error al registrar Service Worker:', err));
+            } else {
+                console.log('App cargada correctamente');
+            }
+        }
+    </script>
+</body>
+</html>

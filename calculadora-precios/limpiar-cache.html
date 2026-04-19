@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Limpiar Cache</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Mantenimiento de App</h1>
+        </header>
+
+        <main>
+            <div class="card">
+                <h2>Limpiar Cache y Actualizar</h2>
+                <p>Si tienes problemas para acceder a los módulos, usa esta opción:</p>
+
+                <button onclick="limpiarTodo()" class="btn btn-primary" style="width: 100%; margin: 10px 0;">
+                    Limpiar Cache Completo
+                </button>
+
+                <button onclick="desinstalarServiceWorker()" class="btn btn-danger" style="width: 100%; margin: 10px 0;">
+                    Desinstalar Service Worker
+                </button>
+
+                <button onclick="location.reload(true)" class="btn" style="width: 100%; margin: 10px 0;">
+                    Recargar Página (Forzar)
+                </button>
+
+                <div id="resultado" style="margin-top: 20px;"></div>
+
+                <hr style="margin: 30px 0;">
+
+                <h3>Navegación Manual</h3>
+                <p>Prueba estos enlaces:</p>
+                <a href="index.html" class="btn" style="display: block; margin: 10px 0;">Ir a Calculadora</a>
+                <a href="productos.html" class="btn" style="display: block; margin: 10px 0;">Ir a Productos</a>
+                <a href="clientes.html" class="btn" style="display: block; margin: 10px 0;">Ir a Clientes</a>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        async function limpiarTodo() {
+            const resultadoDiv = document.getElementById('resultado');
+            resultadoDiv.innerHTML = '<p>Limpiando...</p>';
+
+            try {
+                // Verificar si Cache API está disponible
+                if (typeof caches === 'undefined') {
+                    resultadoDiv.innerHTML = `
+                        <div class="success">
+                            <p>✅ No hay caché que limpiar (modo HTTP)</p>
+                            <p>La aplicación está funcionando correctamente sin Service Worker.</p>
+                            <p><strong>Recarga la página si tienes problemas.</strong></p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Limpiar todos los caches
+                const cacheNames = await caches.keys();
+                await Promise.all(cacheNames.map(name => caches.delete(name)));
+
+                resultadoDiv.innerHTML = `
+                    <div class="success">
+                        <p>Cache limpiado exitosamente!</p>
+                        <p>Se eliminaron ${cacheNames.length} caches.</p>
+                        <p><strong>Presiona el botón de recargar abajo.</strong></p>
+                    </div>
+                `;
+            } catch (error) {
+                resultadoDiv.innerHTML = `
+                    <div class="error">
+                        <p>Error: ${error.message}</p>
+                        <p>Intenta recargar la página manualmente.</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function desinstalarServiceWorker() {
+            const resultadoDiv = document.getElementById('resultado');
+            resultadoDiv.innerHTML = '<p>Verificando Service Workers...</p>';
+
+            try {
+                if ('serviceWorker' in navigator) {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+
+                    if (registrations.length === 0) {
+                        resultadoDiv.innerHTML = `
+                            <div class="success">
+                                <p>✅ No hay Service Workers instalados</p>
+                                <p>La aplicación funciona correctamente en modo HTTP.</p>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    for (let registration of registrations) {
+                        await registration.unregister();
+                    }
+
+                    resultadoDiv.innerHTML = `
+                        <div class="success">
+                            <p>Service Worker desinstalado!</p>
+                            <p>Se desinstalaron ${registrations.length} registros.</p>
+                            <p><strong>Ahora recarga la página.</strong></p>
+                        </div>
+                    `;
+                } else {
+                    resultadoDiv.innerHTML = '<div class="success"><p>✅ Service Worker no está disponible (modo HTTP)</p><p>La aplicación funciona normalmente.</p></div>';
+                }
+            } catch (error) {
+                resultadoDiv.innerHTML = `
+                    <div class="error">
+                        <p>Error: ${error.message}</p>
+                        <p>No te preocupes, la app funciona sin Service Worker.</p>
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

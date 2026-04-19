@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generar Iconos</title>
+</head>
+<body>
+    <h2>Generador de Iconos para la App</h2>
+    <p>Haz clic derecho en cada imagen y "Guardar como"</p>
+    
+    <h3>Icono 192x192 (guardar como icon-192.png)</h3>
+    <canvas id="icon192" width="192" height="192"></canvas>
+    
+    <h3>Icono 512x512 (guardar como icon-512.png)</h3>
+    <canvas id="icon512" width="512" height="512"></canvas>
+
+    <script>
+        function crearIcono(canvasId, size) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            
+            // Fondo con gradiente
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#667eea');
+            gradient.addColorStop(1, '#764ba2');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, size, size);
+            
+            // Símbolo de calculadora
+            ctx.fillStyle = 'white';
+            ctx.font = `bold ${size * 0.6}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('💰', size / 2, size / 2);
+        }
+        
+        crearIcono('icon192', 192);
+        crearIcono('icon512', 512);
+        
+        // Convertir a imágenes descargables
+        document.getElementById('icon192').addEventListener('click', function() {
+            const link = document.createElement('a');
+            link.download = 'icon-192.png';
+            link.href = this.toDataURL();
+            link.click();
+        });
+        
+        document.getElementById('icon512').addEventListener('click', function() {
+            const link = document.createElement('a');
+            link.download = 'icon-512.png';
+            link.href = this.toDataURL();
+            link.click();
+        });
+    </script>
+</body>
+</html>

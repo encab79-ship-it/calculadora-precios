@@ -1,0 +1,70 @@
+================================================================================
+        CALCULADORA DE PRECIOS - INSTRUCCIONES DE USO
+================================================================================
+
+PROBLEMA RESUELTO
+-----------------
+El error "caches is not defined" ha sido solucionado.
+La aplicación ahora funciona perfectamente sin Service Workers.
+
+COMO ACCEDER DESDE TU CELULAR
+------------------------------
+1. Asegúrate de que tu celular esté en la MISMA WiFi que tu PC
+2. Abre Chrome en tu celular
+3. Escribe: http://192.168.0.108:8080
+
+MÓDULOS DISPONIBLES
+-------------------
+1. CALCULADORA (index.html)
+   - Calcula precios según producto, cliente y ancho en cm
+   - Fórmula: Ancho × Costo/cm × (1 - Descuento%)
+
+2. PRODUCTOS (productos.html)
+   - Gestiona colores, densidad y costo por centímetro
+   - Agrega, elimina y visualiza productos
+
+3. CLIENTES (clientes.html)
+   - Gestiona clientes y sus descuentos
+   - Agrega, elimina y visualiza clientes
+
+NAVEGACIÓN
+----------
+Usa los botones en la parte superior:
+[Calculadora] [Productos] [Clientes]
+
+ALMACENAMIENTO DE DATOS
+-----------------------
+- Los datos se guardan en localStorage del navegador
+- No se pierden al cerrar la app
+- Son específicos del navegador (Chrome en tu celular)
+- NO requieren internet para funcionar
+
+SI TIENES PROBLEMAS
+-------------------
+1. Recarga la página (desliza hacia abajo en Chrome)
+2. Si persiste, ve a: http://192.168.0.108:8080/limpiar-cache.html
+3. Borra el historial de Chrome en el celular
+
+SERVIDOR
+--------
+El servidor debe estar corriendo en tu PC.
+Para iniciarlo: cd C:\Users\ecabanas\calculadora-precios && python -m http.server 8080
+
+EJEMPLO DE USO
+--------------
+1. Ve a PRODUCTOS y agrega:
+   - Color: Azul
+   - Densidad: Alta
+   - Costo: $2.50/cm
+
+2. Ve a CLIENTES y agrega:
+   - Nombre: Juan Pérez
+   - Descuento: 10%
+
+3. Ve a CALCULADORA:
+   - Producto: Azul - Alta
+   - Cliente: Juan Pérez
+   - Ancho: 100 cm
+   - Resultado: $225.00
+
+================================================================================
